@@ -1,1 +1,58 @@
-<p>register works!</p>
+<mat-card class="max-w-lg mx-auto mt-16 p-8 shadow-xl rounded-2xl">
+  <h2 class="text-3xl font-semibold text-center text-gray-800 mb-6">
+    Register
+  </h2>
+
+  <form
+    [formGroup]="form"
+    (ngSubmit)="register()"
+    class="flex flex-col gap-5"
+  >
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Email</mat-label>
+      <input matInput type="email" formControlName="email" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Password</mat-label>
+      <input matInput type="password" formControlName="password" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Role</mat-label>
+      <mat-select formControlName="role">
+        <mat-option
+          *ngFor="let role of roles"
+          [value]="role"
+        >
+          {{ role }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit"
+      class="w-full py-2 text-lg font-medium"
+      [disabled]="form.invalid"
+    >
+      Register
+    </button>
+
+    <p class="text-center text-sm text-gray-600 mt-2">
+      Already have an account?
+      <a
+        routerLink="/login"
+        class="text-blue-600 font-medium hover:underline ml-1"
+      >
+        Login
+      </a>
+    </p>
+  </form>
+</mat-card>

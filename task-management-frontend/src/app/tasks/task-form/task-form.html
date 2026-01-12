@@ -1,1 +1,40 @@
-<p>task-form works!</p>
+<mat-card>
+  <h2>Create Task</h2>
+
+  <form [formGroup]="taskForm" (ngSubmit)="submit()">
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Title</mat-label>
+      <input matInput formControlName="title">
+      <mat-error *ngIf="taskForm.get('title')?.invalid">
+        Title is required
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Description</mat-label>
+      <textarea matInput rows="3" formControlName="description"></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Assign To</mat-label>
+      <mat-select formControlName="assignedTo">
+        <mat-option *ngFor="let user of users" [value]="user._id">
+          {{ user.name }} ({{ user.email }})
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="taskForm.get('assignedTo')?.invalid">
+        Please select a user
+      </mat-error>
+    </mat-form-field>
+
+    <button mat-raised-button color="primary" type="submit">
+      Create Task
+    </button>
+
+    <button mat-button color="warn" routerLink="/tasks">
+      Cancel
+    </button>
+
+  </form>
+</mat-card>

@@ -21,6 +21,10 @@ export class AuthService {
     localStorage.clear();
   }
 
+  register(data: any) {
+  return this.http.post(`${environment.apiUrl}/auth/register`, data);
+}
+
   isLoggedIn(): boolean {
     return !!localStorage.getItem('accessToken');
   }
