@@ -10,5 +10,6 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     { provide: HTTP_INTERCEPTORS, useValue: authInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useValue: errorInterceptor, multi: true }
   ]
 };
