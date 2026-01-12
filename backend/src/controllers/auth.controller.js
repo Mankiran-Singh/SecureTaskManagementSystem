@@ -35,6 +35,9 @@ exports.login = async (req, res) => {
   if (!match)
     return res.status(400).json({ message: "Invalid credentials", captcha: captchaGen() });
 
+  user.lastActivity = new Date();
+  await user.save();
+
   const accessToken = jwt.sign(
     { id: user._id, role: user.role },
     process.env.JWT_SECRET,
