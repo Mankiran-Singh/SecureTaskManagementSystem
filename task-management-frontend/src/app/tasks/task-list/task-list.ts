@@ -10,12 +10,13 @@ import { CommonModule } from '@angular/common';
   styleUrl: './task-list.css',
 })
 export class TaskList {
- tasks: any[] = [];
+  tasks: any[] = [];
 
   constructor(private taskService: TaskService) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.taskService.getTasks().subscribe((res: any) => {
+      console.log('Tasks:', res);
       this.tasks = res;
     });
   }

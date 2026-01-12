@@ -7,10 +7,11 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButton, MatButtonModule } from '@angular/material/button';
 import { UserService } from '../../services/user.service';
 import { Router } from '@angular/router';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-task-form',
-  imports: [MatCardModule, ReactiveFormsModule, CommonModule, MatSelectModule, MatButtonModule],
+  imports: [MatCardModule, ReactiveFormsModule, CommonModule, MatSelectModule, MatButtonModule, MatInputModule],
   templateUrl: './task-form.html',
   styleUrl: './task-form.css',
 })
