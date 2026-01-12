@@ -1,7 +1,14 @@
-import { CanActivateFn } from '@angular/router';
+import { CanActivateFn, Router } from '@angular/router';
+import { inject } from '@angular/core';
 
 export const roleGuard: CanActivateFn = (route) => {
-  const allowed = route.data['roles'];
+  const router = inject(Router);
   const role = localStorage.getItem('role');
-  return allowed.includes(role);
+  const allowedRoles = route.data['roles'];
+
+  if (!allowedRoles.includes(role)) {
+    router.navigate(['/dashboard']);
+    return false;
+  }
+  return true;
 };
