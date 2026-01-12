@@ -1,7 +1,7 @@
-import { findById } from "../models/User.model";
+const User = require("../models/User.model");
 
-export default async (req, res, next) => {
-  const user = await findById(req.user.id);
+module.exports = async (req, res, next) => {
+  const user = await User.findById(req.user.id);
 
   const diff = Date.now() - new Date(user.lastActivity).getTime();
   if (diff > 10 * 60 * 1000) {
