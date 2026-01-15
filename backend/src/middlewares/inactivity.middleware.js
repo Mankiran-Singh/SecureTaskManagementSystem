@@ -1,23 +1,19 @@
 const User = require("../models/User.model");
 
+const redis = require("../config/redis");
+
 module.exports = async (req, res, next) => {
-  const user = await User.findById(req.user.id);
+  const userId = req.user.id;
+  const key = `activity:${userId}`;
 
-  if (!user) {
-    return res.status(401).json({ message: "User not found" });
-  }
-
-  const now = Date.now();
-  const last = new Date(user.lastActivity).getTime();
-
-  // 10 minutes inactivity
-  if (now - last > 10 * 60 * 1000) {
+  const exists = await redis.exists(key);
+  if (!exists) {
     return res.status(401).json({ message: "Logged out due to inactivity" });
   }
 
-  // Update activity timestamp
-  user.lastActivity = new Date();
-  await user.save();
+  // Reset inactivity TTL to 10 minutes
+  await redis.set(key, "1", { EX: 10 * 60 });
 
   next();
 };
+
