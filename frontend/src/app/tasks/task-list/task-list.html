@@ -1,7 +1,10 @@
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+<div class="m-10">
+<h1 class="text-center font-bold text-3xl">Tasks List</h1>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 m-12">
   <mat-card
-    *ngFor="let task of tasks"
-    class="p-5 rounded-xl shadow-md hover:shadow-lg"
+    *ngFor="let task of tasks; trackBy: trackById"
+    class="p-5 rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02]
+             transition-all duration-300"
   >
     <h3 class="text-xl font-semibold text-gray-800 mb-2">
       {{ task.title }}
@@ -22,4 +25,5 @@
       Status: {{ task.status }}
     </p>
   </mat-card>
+</div>
 </div>

@@ -2,7 +2,8 @@
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "cli": {
-    "packageManager": "npm"
+    "packageManager": "npm",
+    "analytics": "2ec52551-d844-4124-bd44-ba2e2c90c696"
   },
   "newProjectRoot": "projects",
   "projects": {
@@ -26,7 +27,8 @@
             ],
             "styles": [
               "src/material-theme.scss",
-              "src/styles.css"
+              "src/styles.css",
+              "node_modules/@angular/material/prebuilt-themes/indigo-pink.css"
             ]
           },
           "configurations": {
