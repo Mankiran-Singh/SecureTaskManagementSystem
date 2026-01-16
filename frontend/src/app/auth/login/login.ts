@@ -30,9 +30,17 @@ export class Login {
       });
     }
 
-  login() {
-    this.auth.login(this.form.value).subscribe(() => {
+login() {
+  if (this.form.invalid) return;
+
+  this.auth.login(this.form.value).subscribe({
+    next: () => {
       this.router.navigate(['/dashboard']);
-    });
-  }
+    },
+    error: (err) => {
+      alert(err.error?.message || 'Login failed');
+    }
+  });
+}
+
 }

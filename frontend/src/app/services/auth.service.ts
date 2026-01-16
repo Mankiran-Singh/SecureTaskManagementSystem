@@ -1,40 +1,76 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { tap } from 'rxjs';
+import { BehaviorSubject, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
+
+export interface SessionUser {
+  id: string;
+  role: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+
+  //  In-memory cached auth state
+  private userSubject = new BehaviorSubject<SessionUser | null>(null);
+
+  // Observable for components/guards
+  user$ = this.userSubject.asObservable();
+
   constructor(private http: HttpClient) {}
 
+
   login(data: any) {
-    return this.http.post<any>(`${environment.apiUrl}/auth/login`, data)
-      .pipe(
-        tap(res => {
-          localStorage.setItem('accessToken', res.accessToken);
-          localStorage.setItem('role', this.getRoleFromToken(res.accessToken));
-        })
-      );
+    return this.http.post(
+      `${environment.apiUrl}/auth/login`,
+      data
+    ).pipe(
+      tap(() => {
+        // After login, fetch session info from backend
+        this.loadSession().subscribe();
+      })
+    );
+  }
+
+ 
+  register(data: any) {
+    return this.http.post(
+      `${environment.apiUrl}/auth/register`,
+      data
+    );
   }
 
   logout() {
-    localStorage.clear();
+    return this.http.post(
+      `${environment.apiUrl}/auth/logout`,
+      {}
+    ).pipe(
+      tap(() => {
+        // Clear cached auth state
+        this.userSubject.next(null);
+      })
+    );
   }
 
-  register(data: any) {
-  return this.http.post(`${environment.apiUrl}/auth/register`, data);
-}
 
+  loadSession() {
+    return this.http.get<SessionUser>(
+      `${environment.apiUrl}/auth/me`
+    ).pipe(
+      tap(user => {
+        // Cache authenticated user in memory
+        this.userSubject.next(user);
+      })
+    );
+  }
+
+  
   isLoggedIn(): boolean {
-    return !!localStorage.getItem('accessToken');
+    return !!this.userSubject.value;
   }
 
-  getRole(): string {
-    return localStorage.getItem('role') || '';
-  }
-
-  private getRoleFromToken(token: string): string {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.role;
+  
+  getRole(): string | null {
+    return this.userSubject.value?.role || null;
   }
 }
