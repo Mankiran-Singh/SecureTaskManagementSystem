@@ -48,23 +48,28 @@ exports.login = async (req, res) => {
     { expiresIn: "15m" }
   );
 
-  // Redis
-  await redis.set(`activity:${user._id}`, "1");
-await redis.expire(`activity:${user._id}`, 10 * 60);
-  await redis.set(`refresh:${user._id}`, refreshToken, { EX: 15 * 60 });
+  const now = Date.now();
 
-  // HttpOnly cookies
+  // SINGLE SESSION OBJECT
+  await redis.hSet(`session:${user._id}`, {
+    refreshToken,
+    lastActivity: now
+  });
+
+  
+  await redis.expire(`session:${user._id}`, 60 * 60);
+
   res
     .cookie('accessToken', accessToken, {
       httpOnly: true,
-      secure: true,      
-      sameSite: 'strict',
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
       maxAge: 5 * 60 * 1000
     })
     .cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
       maxAge: 15 * 60 * 1000
     })
     .json({ message: "Login successful" });
@@ -78,16 +83,23 @@ exports.refreshToken = async (req, res) => {
   }
 
   try {
-    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+    const decoded = jwt.verify(
+      refreshToken,
+      process.env.JWT_REFRESH_SECRET
+    );
 
-    const storedToken = await redis.get(`refresh:${decoded.id}`);
-    if (!storedToken || storedToken !== refreshToken) {
+    const sessionKey = `session:${decoded.id}`;
+    const session = await redis.hGetAll(sessionKey);
+
+    if (!session.refreshToken || session.refreshToken !== refreshToken) {
       return res.status(401).json({ message: "Invalid refresh token" });
     }
 
-    // Reset inactivity
-    await redis.expire(`activity:${decoded.id}`, 10 * 60);
-    
+    // Update last activity
+    await redis.hSet(sessionKey, {
+      lastActivity: Date.now()
+    });
+
     const newAccessToken = jwt.sign(
       { id: decoded.id, role: decoded.role },
       process.env.JWT_SECRET,
@@ -96,8 +108,8 @@ exports.refreshToken = async (req, res) => {
 
     res.cookie('accessToken', newAccessToken, {
       httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
       maxAge: 5 * 60 * 1000
     });
 
@@ -111,10 +123,7 @@ exports.refreshToken = async (req, res) => {
 
 
 exports.logout = async (req, res) => {
-  const userId = req.user.id;
-
-  await redis.del(`refresh:${userId}`);
-  await redis.del(`activity:${userId}`);
+  await redis.del(`session:${req.user.id}`);
 
   res
     .clearCookie('accessToken')
